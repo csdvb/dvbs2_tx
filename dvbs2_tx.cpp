@@ -45,6 +45,7 @@
 #include <stdio.h>
 #include <vector>
 
+#include "app_conf.h"
 
 #define CODE_RATE       gr::dtv::C3_5
 #define CONSTELLATION   gr::dtv::MOD_8PSK
@@ -82,7 +83,8 @@ int main(int argc, char **argv)
     gr::filter::fft_filter_ccf::sptr    filter;
     osmosdr::sink::sptr                 iq_sink;
 
-    std::vector<float>                  filter_taps;
+    std::vector<float>      filter_taps;
+    app_conf_t              conf;
 
 
     // register signal handlers
