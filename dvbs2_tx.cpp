@@ -28,6 +28,7 @@
  */
 
 #include <gnuradio/blocks/file_source.h>
+#include <gnuradio/blocks/udp_source.h>
 #include <gnuradio/dtv/dvb_bbheader_bb.h>
 #include <gnuradio/dtv/dvb_bbscrambler_bb.h>
 #include <gnuradio/dtv/dvb_bch_bb.h>
@@ -73,6 +74,7 @@ int main(int argc, char **argv)
 {
     gr::top_block_sptr                  tb;
     gr::blocks::file_source::sptr       ts_source;
+    gr::blocks::udp_source::sptr        ts_source;
     gr::dtv::dvb_bbheader_bb::sptr      bb_header;
     gr::dtv::dvb_bbscrambler_bb::sptr   bb_scrambler;
     gr::dtv::dvb_bch_bb::sptr           bch_enc;
@@ -99,7 +101,8 @@ int main(int argc, char **argv)
 
 
     tb = gr::make_top_block("dvbs2_tx");
-    ts_source = gr::blocks::file_source::make(sizeof(char), "/dev/stdin", false);
+//    ts_source = gr::blocks::file_source::make(sizeof(char), "/dev/stdin", false);
+    ts_source = gr::blocks::udp_source::make(sizeof(char), "0.0.0.0", 5000, 1316, true);
 
     bb_header = gr::dtv::dvb_bbheader_bb::make(gr::dtv::STANDARD_DVBS2,
                                                gr::dtv::FECFRAME_NORMAL,
