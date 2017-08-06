@@ -47,7 +47,7 @@ struct option options[] = {
     { "help",          no_argument,       0, 'h'},
 
     /* input settings */
-    { "udp",           required_argument, 0, 'u'},
+    { "udp",           no_argument,       0, 'u'},
     { "frequency",     required_argument, 0, 'f'},
     { "correction",    required_argument, 0, 'c'},
 
