@@ -45,6 +45,7 @@
 struct option options[] = {
     /* simple switches with no argument */
     { "help",          no_argument,       0, 'h'},
+    { "probe",         no_argument,       0, 'p'},
 
     /* input settings */
     { "udp",           no_argument,       0, 'u'},
@@ -65,6 +66,7 @@ static void help(void)
         "\n Usage: " PROG_NAME " [options]\n"
         "\n"
         "  -h        --help\n"
+        "  -p        --probe\n"
         "  -u        --udp\n"
         "  -f 1.2G   --frequency=1280M\n"
         "  -c 12.5   --correction=12.5\n"
@@ -160,10 +162,11 @@ int app_conf_init(app_conf_t * conf, int argc, char ** argv)
     conf->rf_gain = 14;
     conf->if_gain = 47;
     conf->udp_input = false;
+    conf->probe = false;
 
     if (argc > 1)
     {
-        while ((option = getopt_long(argc, argv, "c:f:uh", options, &idx)) != -1)
+        while ((option = getopt_long(argc, argv, "c:f:puh", options, &idx)) != -1)
         {
             switch (option)
             {
@@ -175,6 +178,9 @@ int app_conf_init(app_conf_t * conf, int argc, char ** argv)
                 break;
             case 'u':
                 conf->udp_input = true;
+                break;
+            case 'p':
+                conf->probe = true;
                 break;
             case RF_GAIN_ID:
                 conf->rf_gain = atoi(optarg);

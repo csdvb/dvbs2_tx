@@ -28,6 +28,7 @@
  */
 
 #include <gnuradio/blocks/file_source.h>
+#include <gnuradio/blocks/probe_rate.h>
 #include <gnuradio/blocks/udp_source.h>
 #include <gnuradio/dtv/dvb_bbheader_bb.h>
 #include <gnuradio/dtv/dvb_bbscrambler_bb.h>
@@ -73,6 +74,8 @@ static void signal_handler(int signo)
 int main(int argc, char **argv)
 {
     gr::top_block_sptr                  tb;
+    gr::blocks::probe_rate::sptr        ts_probe;
+    gr::blocks::probe_rate::sptr        iq_probe;
     gr::blocks::file_source::sptr       ts_in_file;
     gr::blocks::udp_source::sptr        ts_in_udp;
     gr::dtv::dvb_bbheader_bb::sptr      bb_header;
@@ -140,6 +143,8 @@ int main(int argc, char **argv)
         double      freq_hz = conf.rf_freq * (1000000.0 - conf.ppm) / 1000000.0;
         double      rate_hz = (2.0 * SYMBOL_RATE) * ((1000000.0 - conf.ppm) / 1000000.0);
 
+        fprintf(stderr, "F: %.3f    R: %.3f\n", freq_hz, rate_hz);
+
         iq_sink = osmosdr::sink::make("hackrf");
         iq_sink->set_sample_rate(rate_hz);
         iq_sink->set_center_freq(freq_hz, 0);
@@ -167,12 +172,29 @@ int main(int argc, char **argv)
     tb->connect(pl_framer, 0, filter, 0);
     tb->connect(filter, 0, iq_sink, 0);
 
+    if (conf.probe)
+    {
+        fprintf(stderr, "Enabling rate probes\n");
+        ts_probe = gr::blocks::probe_rate::make(sizeof(char), 1000, 0.5);
+        if (conf.udp_input)
+            tb->connect(ts_in_udp, 0, ts_probe, 0);
+        else
+            tb->connect(ts_in_file, 0, ts_probe, 0);
+
+        iq_probe = gr::blocks::probe_rate::make(sizeof(gr_complex), 1000, 0.5);
+        tb->connect(filter, 0, iq_probe, 0);
+    }
+
     tb->start();
     fputs("Flow graph running\n", stderr);
     keep_running = true;
     while (keep_running)
     {
         sleep(1);
+
+        if (conf.probe)
+            fprintf(stderr, "dvbs2_tx:  %.3f kbps in;  %.3f ksps out\n",
+                    8.0e-3 * ts_probe->rate(), 1.0e-3 * iq_probe->rate());
     }
 
     fputs("Stopping flow graph\n", stderr);
