@@ -49,6 +49,7 @@ struct option options[] = {
     /* input settings */
     { "udp",           required_argument, 0, 'u'},
     { "frequency",     required_argument, 0, 'f'},
+    { "correction",    required_argument, 0, 'c'},
 
     { "rf-gain",       required_argument, 0, RF_GAIN_ID},
     { "if-gain",       required_argument, 0, IF_GAIN_ID},
@@ -66,6 +67,7 @@ static void help(void)
         "  -h        --help\n"
         "  -u        --udp\n"
         "  -f 1.2G   --frequency=1280M\n"
+        "  -c 12.5   --correction=12.5\n"
         "\n"
         "  --rf-gain=14\n"
         "  --if-gain=47\n"
@@ -141,10 +143,11 @@ static void print_conf(app_conf_t * conf)
     fprintf(stderr, "Transmitter configuration:\n"
             "  TS input: %s\n"
             "  RF  freq: %"PRIu64" Hz\n"
+            "  Freq cor: %.2f ppm\n"
             "  RF  gain: %u\n"
             "  IF  gain: %u\n",
             conf->udp_input ? "UDP" : "stdin",
-            conf->rf_freq, conf->rf_gain, conf->if_gain);
+            conf->rf_freq, conf->ppm, conf->rf_gain, conf->if_gain);
 }
 
 int app_conf_init(app_conf_t * conf, int argc, char ** argv)
@@ -153,6 +156,7 @@ int app_conf_init(app_conf_t * conf, int argc, char ** argv)
     int         idx;
 
     conf->rf_freq = 1280000000;
+    conf->ppm = 0.0;
     conf->rf_gain = 14;
     conf->if_gain = 47;
     conf->udp_input = false;
@@ -163,6 +167,9 @@ int app_conf_init(app_conf_t * conf, int argc, char ** argv)
         {
             switch (option)
             {
+            case 'c':
+                conf->ppm = atof(optarg);
+                break;
             case 'f':
                 conf->rf_freq = parse_freq_u64(optarg);
                 break;

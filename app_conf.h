@@ -5,6 +5,7 @@
 
 typedef struct {
     uint64_t        rf_freq;
+    double          ppm;
     uint8_t         rf_gain;
     uint8_t         if_gain;
     bool            udp_input;

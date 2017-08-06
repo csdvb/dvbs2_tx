@@ -134,11 +134,18 @@ int main(int argc, char **argv)
 
     filter_taps = gr::filter::firdes::root_raised_cosine(1.0, 2*SYMBOL_RATE, SYMBOL_RATE, 0.35, 100);
     filter = gr::filter::fft_filter_ccf::make(1, filter_taps, 1);
-    iq_sink = osmosdr::sink::make("hackrf");
-    iq_sink->set_sample_rate(2*SYMBOL_RATE);
-    iq_sink->set_center_freq(conf.rf_freq, 0);
-    iq_sink->set_gain(conf.rf_gain, "RF", 0);
-    iq_sink->set_gain(conf.if_gain, "IF", 0);
+
+    // hackrf sink
+    {
+        double      freq_hz = conf.rf_freq * (1000000.0 - conf.ppm) / 1000000.0;
+        double      rate_hz = (2.0 * SYMBOL_RATE) * ((1000000.0 - conf.ppm) / 1000000.0);
+
+        iq_sink = osmosdr::sink::make("hackrf");
+        iq_sink->set_sample_rate(rate_hz);
+        iq_sink->set_center_freq(freq_hz, 0);
+        iq_sink->set_gain(conf.rf_gain, "RF", 0);
+        iq_sink->set_gain(conf.if_gain, "IF", 0);
+    }
 
     if (conf.udp_input)
     {
