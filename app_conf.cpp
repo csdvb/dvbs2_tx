@@ -36,6 +36,8 @@
 
 #include "app_conf.h"
 
+#define PROG_NAME "dvbs2_tx"
+
 #define RF_GAIN_ID      10
 #define IF_GAIN_ID      11
 // A..Z is 65..90
@@ -60,8 +62,6 @@ struct option options[] = {
 
 static void help(void)
 {
-#define PROG_NAME "dvbs2_tx"
-
     fprintf(stdout, "%s",
         "\n Usage: " PROG_NAME " [options]\n"
         "\n"
@@ -165,6 +165,8 @@ int app_conf_init(app_conf_t * conf, int argc, char ** argv)
     conf->if_gain = 47;
     conf->udp_input = false;
     conf->probe = false;
+
+    fprintf(stderr, "\n %s %s\n", PROG_NAME, VERSION);
 
     if (argc > 1)
     {
