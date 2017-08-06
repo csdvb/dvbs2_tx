@@ -73,8 +73,8 @@ static void signal_handler(int signo)
 int main(int argc, char **argv)
 {
     gr::top_block_sptr                  tb;
-    gr::blocks::file_source::sptr       ts_source;
-    gr::blocks::udp_source::sptr        ts_source;
+    gr::blocks::file_source::sptr       ts_in_file;
+    gr::blocks::udp_source::sptr        ts_in_udp;
     gr::dtv::dvb_bbheader_bb::sptr      bb_header;
     gr::dtv::dvb_bbscrambler_bb::sptr   bb_scrambler;
     gr::dtv::dvb_bch_bb::sptr           bch_enc;
@@ -88,6 +88,8 @@ int main(int argc, char **argv)
     std::vector<float>      filter_taps;
     app_conf_t              conf;
 
+    if (app_conf_init(&conf, argc, argv))
+        return -1;
 
     // register signal handlers
     if (signal(SIGINT, signal_handler) == SIG_ERR)
@@ -99,11 +101,7 @@ int main(int argc, char **argv)
     if (signal(SIGPIPE, signal_handler) == SIG_ERR)
         fputs("Warning: Can not install signal handler for SIGPIPE\n", stderr);
 
-
     tb = gr::make_top_block("dvbs2_tx");
-//    ts_source = gr::blocks::file_source::make(sizeof(char), "/dev/stdin", false);
-    ts_source = gr::blocks::udp_source::make(sizeof(char), "0.0.0.0", 5000, 1316, true);
-
     bb_header = gr::dtv::dvb_bbheader_bb::make(gr::dtv::STANDARD_DVBS2,
                                                gr::dtv::FECFRAME_NORMAL,
                                                CODE_RATE,
@@ -138,11 +136,21 @@ int main(int argc, char **argv)
     filter = gr::filter::fft_filter_ccf::make(1, filter_taps, 1);
     iq_sink = osmosdr::sink::make("hackrf");
     iq_sink->set_sample_rate(2*SYMBOL_RATE);
-    iq_sink->set_center_freq(1280.0e6, 0);
-    iq_sink->set_gain(14, "RF", 0);
-    iq_sink->set_gain(47, "IF", 0);
+    iq_sink->set_center_freq(conf.rf_freq, 0);
+    iq_sink->set_gain(conf.rf_gain, "RF", 0);
+    iq_sink->set_gain(conf.if_gain, "IF", 0);
 
-    tb->connect(ts_source, 0, bb_header, 0);
+    if (conf.udp_input)
+    {
+        ts_in_udp = gr::blocks::udp_source::make(sizeof(char), "0.0.0.0", 5000, 1316, true);
+        tb->connect(ts_in_udp, 0, bb_header, 0);
+    }
+    else
+    {
+        ts_in_file = gr::blocks::file_source::make(sizeof(char), "/dev/stdin", false);
+        tb->connect(ts_in_file, 0, bb_header, 0);
+    }
+    
     tb->connect(bb_header, 0, bb_scrambler, 0);
     tb->connect(bb_scrambler, 0, bch_enc, 0);
     tb->connect(bch_enc, 0, ldpc_enc, 0);
