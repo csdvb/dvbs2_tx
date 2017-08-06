@@ -49,7 +49,7 @@
 
 #include "app_conf.h"
 
-#define CODE_RATE       gr::dtv::C3_5
+#define CODE_RATE       gr::dtv::C2_3
 #define CONSTELLATION   gr::dtv::MOD_8PSK
 
 static bool keep_running;
@@ -135,7 +135,7 @@ int main(int argc, char **argv)
                                                  0);
 
     filter_taps = gr::filter::firdes::root_raised_cosine(1.0,
-                                                         2 * conf.sym_rate,
+                                                         2.0 * conf.sym_rate,
                                                          conf.sym_rate,
                                                          0.35, 100);
     filter = gr::filter::fft_filter_ccf::make(1, filter_taps, 1);
