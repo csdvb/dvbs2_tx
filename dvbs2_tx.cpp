@@ -51,7 +51,6 @@
 
 #define CODE_RATE       gr::dtv::C3_5
 #define CONSTELLATION   gr::dtv::MOD_8PSK
-#define SYMBOL_RATE     8.04e6
 
 static bool keep_running;
 
@@ -135,13 +134,16 @@ int main(int argc, char **argv)
                                                  gr::dtv::PILOTS_ON,
                                                  0);
 
-    filter_taps = gr::filter::firdes::root_raised_cosine(1.0, 2*SYMBOL_RATE, SYMBOL_RATE, 0.35, 100);
+    filter_taps = gr::filter::firdes::root_raised_cosine(1.0,
+                                                         2 * conf.sym_rate,
+                                                         conf.sym_rate,
+                                                         0.35, 100);
     filter = gr::filter::fft_filter_ccf::make(1, filter_taps, 1);
 
     // hackrf sink
     {
         double      freq_hz = conf.rf_freq * (1000000.0 - conf.ppm) / 1000000.0;
-        double      rate_hz = (2.0 * SYMBOL_RATE) * ((1000000.0 - conf.ppm) / 1000000.0);
+        double      rate_hz = (2.0 * conf.sym_rate) * ((1000000.0 - conf.ppm) / 1000000.0);
 
         iq_sink = osmosdr::sink::make("hackrf");
         iq_sink->set_sample_rate(rate_hz);
