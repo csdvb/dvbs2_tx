@@ -72,7 +72,7 @@ static void help(void)
         );
 }
 
-/* Parse frequency string as single precision float. */
+/* Parse frequency string as double */
 static double parse_freq_double(char * freq_str)
 {
     size_t n = strlen(freq_str);
