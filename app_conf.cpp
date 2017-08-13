@@ -53,6 +53,8 @@ struct option options[] = {
     { "udp",           no_argument,       0, 'u'},
     { "frequency",     required_argument, 0, 'f'},
     { "correction",    required_argument, 0, 'c'},
+    { "symbol-rate",   required_argument, 0, 'r'},
+    { "bandwidth",     required_argument, 0, 'b'},
 
     { "rf-gain",       required_argument, 0, RF_GAIN_ID},
     { "if-gain",       required_argument, 0, IF_GAIN_ID},
@@ -71,6 +73,7 @@ static void help(void)
         "  -f 1.2G   --frequency=1280M\n"
         "  -r 8.0M   --symbol-rate=8000k\n"
         "  -c 12.5   --correction=12.5\n"
+        "  -b 7M     --bandwidth=7000k\n"
         "\n"
         "  --rf-gain=14\n"
         "  --if-gain=47\n"
@@ -145,11 +148,12 @@ static void print_conf(app_conf_t * conf)
             "  TS input: %s\n"
             "  RF  freq: %"PRIu64" Hz\n"
             "  Sym rate: %.0f sps\n"
+            "  Bandwidth: %.2f MHz\n"
             "  Freq cor: %.2f ppm\n"
             "  RF  gain: %u\n"
             "  IF  gain: %u\n",
             conf->udp_input ? "UDP" : "stdin",
-            conf->rf_freq, conf->sym_rate, conf->ppm,
+            conf->rf_freq, conf->sym_rate, conf->bw * 1.0e-6, conf->ppm,
             conf->rf_gain, conf->if_gain);
 }
 
@@ -160,6 +164,7 @@ int app_conf_init(app_conf_t * conf, int argc, char ** argv)
 
     conf->rf_freq = 1280000000;
     conf->sym_rate = 6.249e6;
+    conf->bw = 0.0;
     conf->ppm = 0.0;
     conf->rf_gain = 14;
     conf->if_gain = 47;
@@ -170,7 +175,7 @@ int app_conf_init(app_conf_t * conf, int argc, char ** argv)
 
     if (argc > 1)
     {
-        while ((option = getopt_long(argc, argv, "c:f:r:puh", options, &idx)) != -1)
+        while ((option = getopt_long(argc, argv, "c:f:r:b:puh", options, &idx)) != -1)
         {
             switch (option)
             {
@@ -182,6 +187,9 @@ int app_conf_init(app_conf_t * conf, int argc, char ** argv)
                 break;
             case 'r':
                 conf->sym_rate = parse_freq_double(optarg);
+                break;
+            case 'b':
+                conf->bw = parse_freq_double(optarg);
                 break;
             case 'u':
                 conf->udp_input = true;

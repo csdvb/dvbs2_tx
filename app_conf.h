@@ -7,6 +7,7 @@ typedef struct {
     uint64_t        rf_freq;
     double          sym_rate;
     double          ppm;
+    double          bw;         // ananlog bandwidth
     uint8_t         rf_gain;
     uint8_t         if_gain;
     bool            udp_input;

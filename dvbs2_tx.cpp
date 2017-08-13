@@ -148,6 +148,7 @@ int main(int argc, char **argv)
         iq_sink = osmosdr::sink::make("hackrf");
         iq_sink->set_sample_rate(rate_hz);
         iq_sink->set_center_freq(freq_hz, 0);
+        iq_sink->set_bandwidth(conf.bw, 0);
         iq_sink->set_gain(conf.rf_gain, "RF", 0);
         iq_sink->set_gain(conf.if_gain, "IF", 0);
     }
