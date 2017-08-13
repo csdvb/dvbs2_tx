@@ -38,11 +38,6 @@
 
 #define PROG_NAME "dvbs2_tx"
 
-#define RF_GAIN_ID      10
-#define IF_GAIN_ID      11
-// A..Z is 65..90
-// a..z is 97..122
-
 
 struct option options[] = {
     /* simple switches with no argument */
@@ -55,9 +50,7 @@ struct option options[] = {
     { "correction",    required_argument, 0, 'c'},
     { "symbol-rate",   required_argument, 0, 'r'},
     { "bandwidth",     required_argument, 0, 'b'},
-
-    { "rf-gain",       required_argument, 0, RF_GAIN_ID},
-    { "if-gain",       required_argument, 0, IF_GAIN_ID},
+    { "gain",          required_argument, 0, 'g'},
 
     { 0, 0, 0, 0}
 };
@@ -74,9 +67,7 @@ static void help(void)
         "  -r 8.0M   --symbol-rate=8000k\n"
         "  -c 12.5   --correction=12.5\n"
         "  -b 7M     --bandwidth=7000k\n"
-        "\n"
-        "  --rf-gain=14\n"
-        "  --if-gain=47\n"
+        "  -g 25     --gain=25  (0...61)\n"
         "\n"
         );
 }
@@ -145,16 +136,15 @@ static uint64_t parse_freq_u64(char * freq_str)
 static void print_conf(app_conf_t * conf)
 {
     fprintf(stderr, "Transmitter configuration:\n"
-            "  TS input: %s\n"
-            "  RF  freq: %"PRIu64" Hz\n"
-            "  Sym rate: %.0f sps\n"
-            "  Bandwidth: %.2f MHz\n"
-            "  Freq cor: %.2f ppm\n"
-            "  RF  gain: %u\n"
-            "  IF  gain: %u\n",
+            "   TS input: %s\n"
+            "    RF freq: %"PRIu64" Hz\n"
+            "   Sym rate: %.3f kps\n"
+            "  Bandwidth: %.3f kHz\n"
+            "   Freq cor: %.2f ppm\n"
+            "       Gain: %u\n",
             conf->udp_input ? "UDP" : "stdin",
-            conf->rf_freq, conf->sym_rate, conf->bw * 1.0e-6, conf->ppm,
-            conf->rf_gain, conf->if_gain);
+            conf->rf_freq, 1.0e-3 * conf->sym_rate, conf->bw * 1.0e-3,
+            conf->ppm, conf->gain);
 }
 
 int app_conf_init(app_conf_t * conf, int argc, char ** argv)
@@ -163,11 +153,10 @@ int app_conf_init(app_conf_t * conf, int argc, char ** argv)
     int         idx;
 
     conf->rf_freq = 1280000000;
-    conf->sym_rate = 6.249e6;
+    conf->sym_rate = 6249.0e3;
     conf->bw = 0.0;
     conf->ppm = 0.0;
-    conf->rf_gain = 14;
-    conf->if_gain = 47;
+    conf->gain = 0;
     conf->udp_input = false;
     conf->probe = false;
 
@@ -175,7 +164,7 @@ int app_conf_init(app_conf_t * conf, int argc, char ** argv)
 
     if (argc > 1)
     {
-        while ((option = getopt_long(argc, argv, "c:f:r:b:puh", options, &idx)) != -1)
+        while ((option = getopt_long(argc, argv, "c:f:r:b:g:puh", options, &idx)) != -1)
         {
             switch (option)
             {
@@ -197,11 +186,8 @@ int app_conf_init(app_conf_t * conf, int argc, char ** argv)
             case 'p':
                 conf->probe = true;
                 break;
-            case RF_GAIN_ID:
-                conf->rf_gain = atoi(optarg);
-                break;
-            case IF_GAIN_ID:
-                conf->if_gain = atoi(optarg);
+            case 'g':
+                conf->gain = atoi(optarg);
                 break;
             case 'h':
             default:

@@ -70,6 +70,20 @@ static void signal_handler(int signo)
     keep_running = false;
 }
 
+static void set_gain(osmosdr::sink::sptr iq_sink, uint8_t gain)
+{
+    if (gain <= 47)
+    {
+        iq_sink->set_gain(0, "RF", 0);
+        iq_sink->set_gain(gain, "IF", 0);
+    }
+    else
+    {
+        iq_sink->set_gain(14, "RF", 0);
+        iq_sink->set_gain(gain - 14, "IF", 0);
+    }
+}
+
 int main(int argc, char **argv)
 {
     gr::top_block_sptr                  tb;
@@ -149,8 +163,7 @@ int main(int argc, char **argv)
         iq_sink->set_sample_rate(rate_hz);
         iq_sink->set_center_freq(freq_hz, 0);
         iq_sink->set_bandwidth(conf.bw, 0);
-        iq_sink->set_gain(conf.rf_gain, "RF", 0);
-        iq_sink->set_gain(conf.if_gain, "IF", 0);
+        set_gain(iq_sink, conf.gain);
     }
 
     if (conf.udp_input)

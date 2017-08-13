@@ -8,8 +8,7 @@ typedef struct {
     double          sym_rate;
     double          ppm;
     double          bw;         // ananlog bandwidth
-    uint8_t         rf_gain;
-    uint8_t         if_gain;
+    uint8_t         gain;
     bool            udp_input;
     bool            probe;
 } app_conf_t;
