@@ -26,7 +26,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
 #include <gnuradio/blocks/file_source.h>
 #include <gnuradio/blocks/probe_rate.h>
 #include <gnuradio/blocks/udp_source.h>
@@ -156,10 +155,19 @@ int main(int argc, char **argv)
 
     // hackrf sink
     {
+        bool        hackrf_found = false;
         double      freq_hz = conf.rf_freq * (1000000.0 - conf.ppm) / 1000000.0;
         double      rate_hz = (2.0 * conf.sym_rate) * ((1000000.0 - conf.ppm) / 1000000.0);
 
-        iq_sink = osmosdr::sink::make("hackrf");
+        try
+        {
+            iq_sink = osmosdr::sink::make("hackrf");
+        }
+        catch (std::runtime_error &e)
+        {
+            fprintf(stderr, "\n*** Error creating hackrf sink: %s\n\n", e.what());
+            goto error;
+        }
         iq_sink->set_sample_rate(rate_hz);
         iq_sink->set_center_freq(freq_hz, 0);
         iq_sink->set_bandwidth(conf.bw, 0);
@@ -215,4 +223,7 @@ int main(int argc, char **argv)
     tb->stop();
 
     return 0;
+
+error:
+    return 1;
 }
