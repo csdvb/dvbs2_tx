@@ -155,7 +155,6 @@ int main(int argc, char **argv)
 
     // hackrf sink
     {
-        bool        hackrf_found = false;
         double      freq_hz = conf.rf_freq * (1000000.0 - conf.ppm) / 1000000.0;
         double      rate_hz = (2.0 * conf.sym_rate) * ((1000000.0 - conf.ppm) / 1000000.0);
 
