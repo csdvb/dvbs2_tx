@@ -1,4 +1,5 @@
 dvbs2_rate
 dvbs2_tx
+dvbs2_tx_ctl
 *.o
 
