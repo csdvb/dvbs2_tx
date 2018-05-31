@@ -31,4 +31,4 @@ dvbs2_rate:
 .PHONY: clean
 
 clean:
-	rm dvbs2_tx dvbs2_rate *.o
+	rm dvbs2_tx dvbs2_tx_ctl dvbs2_rate *.o
