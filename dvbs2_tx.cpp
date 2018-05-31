@@ -47,6 +47,7 @@
 #include <vector>
 
 #include "app_conf.h"
+#include "ctl_if.h"
 
 #define CODE_RATE       gr::dtv::C2_3
 #define CONSTELLATION   gr::dtv::MOD_8PSK
@@ -81,6 +82,8 @@ static void set_gain(osmosdr::sink::sptr iq_sink, uint8_t gain)
         iq_sink->set_gain(14, "RF", 0);
         iq_sink->set_gain(gain - 14, "IF", 0);
     }
+
+    ctl_if_set_tx_power(gain);
 }
 
 int main(int argc, char **argv)
@@ -212,6 +215,19 @@ int main(int argc, char **argv)
     while (keep_running)
     {
         sleep(1);
+
+        if (ctl_if_poll())
+        {
+            int pwr = ctl_if_get_tx_power();
+            if (pwr < 0)
+                conf.gain = 0;
+            else if (pwr > 61)
+                conf.gain = 61;
+            else
+                conf.gain = pwr;
+
+            set_gain(iq_sink, conf.gain);
+        }
 
         if (conf.probe)
             fprintf(stderr, "dvbs2_tx:  %.3f kbps in;  %.3f ksps out\n",
