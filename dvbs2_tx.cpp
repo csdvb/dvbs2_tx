@@ -221,8 +221,8 @@ int main(int argc, char **argv)
             int pwr = ctl_if_get_tx_power();
             if (pwr < 0)
                 conf.gain = 0;
-            else if (pwr > 61)
-                conf.gain = 61;
+            else if (pwr > 30)
+                conf.gain = 30;
             else
                 conf.gain = pwr;
 
