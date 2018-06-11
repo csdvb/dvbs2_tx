@@ -153,7 +153,7 @@ int app_conf_init(app_conf_t * conf, int argc, char ** argv)
     int         idx;
 
     conf->rf_freq = 1280000000;
-    conf->sym_rate = 6249.0e3;
+    conf->sym_rate = 6250.0e3;
     conf->bw = 0.0;
     conf->ppm = 0.0;
     conf->gain = 0;
