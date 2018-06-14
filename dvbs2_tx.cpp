@@ -48,6 +48,7 @@
 
 #include "app_conf.h"
 #include "ctl_if.h"
+#include "ts_null_filler.h"
 
 #define CODE_RATE       gr::dtv::C2_3
 #define CONSTELLATION   gr::dtv::MOD_8PSK
@@ -93,6 +94,7 @@ int main(int argc, char **argv)
     gr::blocks::probe_rate::sptr        iq_probe;
     gr::blocks::file_source::sptr       ts_in_file;
     gr::blocks::udp_source::sptr        ts_in_udp;
+    ts_null_filler_bb::sptr             ts_fill;
     gr::dtv::dvb_bbheader_bb::sptr      bb_header;
     gr::dtv::dvb_bbscrambler_bb::sptr   bb_scrambler;
     gr::dtv::dvb_bch_bb::sptr           bch_enc;
@@ -120,6 +122,7 @@ int main(int argc, char **argv)
         fputs("Warning: Can not install signal handler for SIGPIPE\n", stderr);
 
     tb = gr::make_top_block("dvbs2_tx");
+    ts_fill = ts_null_filler_bb::make();
     bb_header = gr::dtv::dvb_bbheader_bb::make(gr::dtv::STANDARD_DVBS2,
                                                gr::dtv::FECFRAME_NORMAL,
                                                CODE_RATE,
@@ -179,14 +182,15 @@ int main(int argc, char **argv)
     if (conf.udp_input)
     {
         ts_in_udp = gr::blocks::udp_source::make(sizeof(char), "0.0.0.0", 5000, 1316, true);
-        tb->connect(ts_in_udp, 0, bb_header, 0);
+        tb->connect(ts_in_udp, 0, ts_fill, 0);
     }
     else
     {
         ts_in_file = gr::blocks::file_source::make(sizeof(char), "/dev/stdin", false);
-        tb->connect(ts_in_file, 0, bb_header, 0);
+        tb->connect(ts_in_file, 0, ts_fill, 0);
     }
-    
+
+    tb->connect(ts_fill, 0, bb_header, 0);
     tb->connect(bb_header, 0, bb_scrambler, 0);
     tb->connect(bb_scrambler, 0, bch_enc, 0);
     tb->connect(bch_enc, 0, ldpc_enc, 0);

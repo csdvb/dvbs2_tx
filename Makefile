@@ -9,14 +9,17 @@ LDFLAGS=`pkg-config --libs $(GR_COMP)` -lboost_system
 
 all: dvbs2_tx dvbs2_tx_ctl dvbs2_rate
 
-dvbs2_tx: dvbs2_tx.o app_conf.o ctl_if.o
-	$(CPP) -o dvbs2_tx dvbs2_tx.o app_conf.o ctl_if.o $(LDFLAGS)
+dvbs2_tx: dvbs2_tx.o app_conf.o ts_null_filler_impl.o ctl_if.o
+	$(CPP) -o dvbs2_tx dvbs2_tx.o app_conf.o ts_null_filler_impl.o ctl_if.o $(LDFLAGS)
 
 dvbs2_tx.o: dvbs2_tx.cpp
 	$(CPP) -c $(CFLAGS) dvbs2_tx.cpp
 
 app_conf.o: app_conf.cpp
 	$(CPP) -c $(CFLAGS) app_conf.cpp
+
+ts_null_filler_impl.o: ts_null_filler_impl.cpp
+	$(CPP) -c $(CFLAGS) ts_null_filler_impl.cpp
 
 ctl_if.o: ctl_if.c
 	$(CC) -c $(CFLAGS) ctl_if.c
