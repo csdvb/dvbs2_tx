@@ -58,7 +58,7 @@ ts_null_filler_bb_impl::ts_null_filler_bb_impl() :
 	null_ts_packet[2] = 0xFF;
 	null_ts_packet[3] = 0x10;
 
-    null_ts_num = 4;
+    null_ts_num = 5;
     null_ts_dt_ms = 1000;
 
     tlast = time_ms();
