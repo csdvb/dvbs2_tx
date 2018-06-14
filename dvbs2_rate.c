@@ -87,7 +87,7 @@ void dump(double rate, double num, double den, double bch, double spaces)
 
 int main(int argc, char **argv)
 {
-    int       i;
+    unsigned int    i;
     int       short_frame = FALSE;
     int       dvb_s2x = FALSE;
     double    rate;
