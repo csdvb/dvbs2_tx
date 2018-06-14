@@ -83,4 +83,6 @@ int main (int argc, char **argv)
 
     close (client_socket);
     unlink (my_addr.sun_path);
+
+    return 0;
 }
