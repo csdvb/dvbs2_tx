@@ -122,7 +122,7 @@ int main(int argc, char **argv)
         fputs("Warning: Can not install signal handler for SIGPIPE\n", stderr);
 
     tb = gr::make_top_block("dvbs2_tx");
-    ts_fill = ts_null_filler_bb::make();
+    ts_fill = ts_null_filler_bb::make(conf.pps);
     bb_header = gr::dtv::dvb_bbheader_bb::make(gr::dtv::STANDARD_DVBS2,
                                                gr::dtv::FECFRAME_NORMAL,
                                                CODE_RATE,

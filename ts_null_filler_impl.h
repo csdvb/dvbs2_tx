@@ -42,7 +42,7 @@ private:
     uint64_t        tlast;
 
 public:
-    ts_null_filler_bb_impl();
+    ts_null_filler_bb_impl(int pps);
     ~ts_null_filler_bb_impl();
 
     void forecast(int noutput_items, gr_vector_int &ninput_items_required);

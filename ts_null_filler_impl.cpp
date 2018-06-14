@@ -39,26 +39,26 @@
 #define BUF_LEN     (TS_RATE/1)     // 1 second
 
 
-ts_null_filler_bb::sptr ts_null_filler_bb::make()
+ts_null_filler_bb::sptr ts_null_filler_bb::make(int pps)
 {
-    return gnuradio::get_initial_sptr (new ts_null_filler_bb_impl());
+    return gnuradio::get_initial_sptr(new ts_null_filler_bb_impl(pps));
 }
 
-ts_null_filler_bb_impl::ts_null_filler_bb_impl() :
+ts_null_filler_bb_impl::ts_null_filler_bb_impl(int pps) :
     gr::block("ts_null_filler_bb",
               gr::io_signature::make(1, 1, sizeof(unsigned char)),
               gr::io_signature::make(1, 1, sizeof(unsigned char)))
 {
     set_alignment(TS_PACKET_SIZE);
 
-	/* Init null packet */
+	/* TS NULL packet */
 	memset(null_ts_packet, 0, TS_PACKET_SIZE);
 	null_ts_packet[0] = 0x47;
 	null_ts_packet[1] = 0x1F;
 	null_ts_packet[2] = 0xFF;
 	null_ts_packet[3] = 0x10;
 
-    null_ts_num = 5;
+    null_ts_num = pps;
     null_ts_dt_ms = 1000;
 
     tlast = time_ms();

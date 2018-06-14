@@ -7,7 +7,8 @@ typedef struct {
     uint64_t        rf_freq;
     double          sym_rate;
     double          ppm;
-    double          bw;         // ananlog bandwidth
+    double          bw;         // analog bandwidth
+    int             pps;        // TS NULL packets per second to insert
     uint8_t         gain;
     bool            udp_input;
     bool            probe;

@@ -42,5 +42,5 @@ class MOD_API ts_null_filler_bb : virtual public gr::block
 public:
     typedef boost::shared_ptr<ts_null_filler_bb> sptr;
 
-    static sptr make();
+    static sptr make(int pps);
 };

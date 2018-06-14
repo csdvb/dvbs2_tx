@@ -51,6 +51,7 @@ struct option options[] = {
     { "symbol-rate",   required_argument, 0, 'r'},
     { "bandwidth",     required_argument, 0, 'b'},
     { "gain",          required_argument, 0, 'g'},
+    { "null-pps",      required_argument, 0, 'n'},
 
     { 0, 0, 0, 0}
 };
@@ -67,7 +68,8 @@ static void help(void)
         "  -r 8.0M   --symbol-rate=8000k\n"
         "  -c 12.5   --correction=12.5\n"
         "  -b 7M     --bandwidth=7000k\n"
-        "  -g 25     --gain=25  (0...61)\n"
+        "  -g 25     --gain=25     (0...61)\n"
+        "  -n 5      --null-pps=5  (0...10)\n"
         "\n"
         );
 }
@@ -137,12 +139,13 @@ static void print_conf(app_conf_t * conf)
 {
     fprintf(stderr, "Transmitter configuration:\n"
             "   TS input: %s\n"
-            "    RF freq: %"PRIu64" Hz\n"
+            "   TS  corr: %d PPS\n"
+            "   RF  freq: %"PRIu64" Hz\n"
             "   Sym rate: %.3f kps\n"
             "  Bandwidth: %.3f kHz\n"
             "   Freq cor: %.2f ppm\n"
             "       Gain: %u\n",
-            conf->udp_input ? "UDP" : "stdin",
+            conf->udp_input ? "UDP" : "stdin", conf->pps,
             conf->rf_freq, 1.0e-3 * conf->sym_rate, conf->bw * 1.0e-3,
             conf->ppm, conf->gain);
 }
@@ -156,6 +159,7 @@ int app_conf_init(app_conf_t * conf, int argc, char ** argv)
     conf->sym_rate = 6250.0e3;
     conf->bw = 0.0;
     conf->ppm = 0.0;
+    conf->pps = 5;
     conf->gain = 0;
     conf->udp_input = false;
     conf->probe = false;
@@ -164,7 +168,7 @@ int app_conf_init(app_conf_t * conf, int argc, char ** argv)
 
     if (argc > 1)
     {
-        while ((option = getopt_long(argc, argv, "c:f:r:b:g:puh", options, &idx)) != -1)
+        while ((option = getopt_long(argc, argv, "c:f:r:b:g:n:puh", options, &idx)) != -1)
         {
             switch (option)
             {
@@ -188,6 +192,13 @@ int app_conf_init(app_conf_t * conf, int argc, char ** argv)
                 break;
             case 'g':
                 conf->gain = atoi(optarg);
+                break;
+            case 'n':
+                conf->pps = atoi(optarg);
+                if (conf->pps < 0)
+                    conf->pps = 0;
+                else if (conf->pps > 10)
+                    conf->pps = 10;
                 break;
             case 'h':
             default:
